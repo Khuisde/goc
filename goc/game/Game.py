@@ -67,6 +67,7 @@ class Game:
             self.player_layer = (self.player_layer + len(self.stages) - 1) % len(self.stages)
             self.stage = self.stages[self.player_layer][1]
             self.stage.addPlayer(self.player)
+            self.stage.initPlayer(self.player)
             self.stage.initViewport()
         
     def playerLayerDown(self):
@@ -75,6 +76,7 @@ class Game:
             self.player_layer = (self.player_layer + 1) % len(self.stages)
             self.stage = self.stages[self.player_layer][1]
             self.stage.addPlayer(self.player)
+            self.stage.initPlayer(self.player)
             self.stage.initViewport()
         
     def update(self):
@@ -107,6 +109,8 @@ class Game:
             screen.gotoLayer(0,0,z)
             stage.draw(screen)
             screen.goLayerBack()
+            if stage.player is not None:  # Draw up to the point where the player is
+                break
         
         #if self.stage:
         #    #self.stage.drawBackground(screen)

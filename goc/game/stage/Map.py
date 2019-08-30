@@ -64,7 +64,10 @@ class Map:
                     bx=ax+scale
                     ay=self.height*scale-y*scale
                     by=ay-scale
-                    r,g,b = image_file.getpixel((x,y))
+                    try:
+                        r,g,b = image_file.getpixel((x,y))
+                    except ValueError:
+                        r,g,b,a = image_file.getpixel((x,y))
                     #print(r,g,b)
                     self.data[x,self.height-y-1] = 0
                     
@@ -90,7 +93,7 @@ class Map:
                     elif r == 255 and g == 0 and b == 0: # Enemy Sheep
                         #print("sheep: (",rx,",",ry,")")
                         self.units.append(Sheep([ax,ay]))
-                    elif r == 0 and g == 255 and b == 0: # Player init
+                    elif r == 255 and g == 255 and b == 0: # Player init
                         self.player_init_pos.append([ax,ay])
                         
             blocks_arr = np.array(blocks_vec,dtype=np.float32)
@@ -104,7 +107,9 @@ class Map:
         
     def init_player(self,player):
         if len(self.player_init_pos) > 0:
-            player.position = self.player_init_pos[0]
+            player.position = self.player_init_pos[0] # The values here will be overwritten by the player as they are used as references!!!!
+            # To not overwrite them, use:
+            #player.position = [ x for x in self.player_init_pos[0]]
         else:
             #player.position = [1.4, 1.4]
             player.position = [(self.width/2)*constants.blockScale, (self.height/2)*constants.blockScale]

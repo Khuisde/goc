@@ -77,9 +77,11 @@ class Player(GoCObject):
             print(self.position,",phy=",self.physicValue)#," cam=",Global.master.screen.side_rot)
         if keys[pygame.K_w]:
             #self.position[1] += 0.1
-            self.velocity[1] += 0.03
+            self.velocity[1] = 0.05
         if keys[pygame.K_s]:
             self.physicValue = 0
+        #if keys[pygame.K_r]:
+        #    Global.master.game.stage.initPlayer(self)
         #if keys[pygame.K_DOWN]:
         #    self.velocity[1] -= 0.01
             

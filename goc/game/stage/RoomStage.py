@@ -40,8 +40,7 @@ class RoomStage(Stage):
         # 20 1.5
         # 30 2.2
         # 40 2.9
-        #self.default_viewport = ((self.width * constants.blockScale)/2,(self.height* constants.blockScale)/2,1) #2
-        self.default_viewport = ((self.width * constants.blockScale)/2,(self.height* constants.blockScale)/2,1) #2
+        self.default_viewport = ((self.width * constants.blockScale)/2,(self.height* constants.blockScale)/2,1.4) #2
         
         for i in self.images:
             index, width, height = Global.master.screen.loadImage(i)
@@ -125,8 +124,8 @@ class RoomStage(Stage):
     def initViewport(self):
         Global.master.game.viewport = [self.default_viewport[0],self.default_viewport[1],self.default_viewport[2]]
         
-    #def setViewport(self):
-    #    pass
+    def setViewport(self):
+        pass
         #px,py,pz = Global.master.game.viewport
         #Global.master.game.viewport = [self.default_viewport[0],self.default_viewport[1],pz]
             

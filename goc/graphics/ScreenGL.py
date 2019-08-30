@@ -830,9 +830,9 @@ class Screen:
                     glRotatef(0.1,0,0,1)
                     self.drawText((x*0.095-1,y*0.095-1,-1),str(x)+","+str(y))
                     
-        self.drawText((0,0),"Dies ist ein TEEEEEST!")
-        self.drawText((0,0.1),"Zweite Zeile nach oben")
-        self.drawText((0.2,0.2),"Dritte Zeile HOCH...")
+        self.drawText((0,0),"C,V,N,M - Move Camera")
+        self.drawText((0,0.1),"O,P - Change Layer")
+        self.drawText((0.2,0.2),"Arrow Keys, W, Shift - Move")
         
         #self.drawImage(self.light_image_id,self.lightx, self.lighty, self.lightz-0.01,1,1)
         
