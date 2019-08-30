@@ -17,6 +17,8 @@ class Lv_Tower_1(Stage):
         Stage.__init__(self)
         self.active = True
         
+        self.id = "Test Tower Level"
+        
         self.images = ["image/Tower_bot_bg.png",
                     "image/Tower_bot_fg.png"]
         self.textures = []

@@ -13,6 +13,7 @@ class Stage:
         self.active = True
         self.map = None
         self.player = None
+        self.id = None
         #self.background = None
         
     def addPlayer(self,player):

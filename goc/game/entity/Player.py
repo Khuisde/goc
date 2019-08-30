@@ -51,6 +51,10 @@ class Player(GoCObject):
         self.velocity = [0,0]
         self.physicValue = 0
         
+        self.temp_pressing_enter = False
+        self.temp_enter = False
+        self.temp_delay = 0
+        
     def update(self,stage):
         
         keys = pygame.key.get_pressed()
@@ -80,6 +84,14 @@ class Player(GoCObject):
             self.velocity[1] = 0.05
         if keys[pygame.K_s]:
             self.physicValue = 0
+            
+        if keys[pygame.K_e]:
+            if not self.temp_pressing_enter:
+                self.temp_enter = True
+                self.temp_pressing_enter = True
+        else:
+            self.temp_enter = False
+            self.temp_pressing_enter = False
         #if keys[pygame.K_r]:
         #    Global.master.game.stage.initPlayer(self)
         #if keys[pygame.K_DOWN]:
@@ -94,6 +106,16 @@ class Player(GoCObject):
         prev_phys = self.physicValue
         pos, self.velocity, self.physicValue, wallhit = physics.apply(self.position, self.velocity, self.hitbox_size, self.physicValue, stage.map)
         
+        if self.temp_delay > 0:
+            self.temp_delay -= 1
+        else:
+            if stage.map.checkLayerForward(self.position[0],self.position[1],self.size[0],self.size[1]):
+                Global.master.game.playerLayerUp()
+                self.temp_delay = 30
+            elif stage.map.checkLayerBackward(self.position[0],self.position[1],self.size[0],self.size[1]):
+                Global.master.game.playerLayerDown()
+                self.temp_delay = 30
+            
         
         #if keys[pygame.K_x]:
         #mx = int(self.position[0]/constants.blockScale)

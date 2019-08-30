@@ -7,7 +7,7 @@ Created on Tue Aug 27 11:50:37 2019
 
 from .Stage import Stage
 from .Map import Map
-from ..util import constants
+from ..util import constants, physics
 
 import Global
 
@@ -15,6 +15,8 @@ class RoomStage(Stage):
     
     def __init__(self):
         Stage.__init__(self)
+        
+        self.id = "Test Room Stage"
         self.active = True
         self.images = ["image/textures/white_border.png",
                        "image/textures/gray_border.png",
@@ -26,12 +28,38 @@ class RoomStage(Stage):
                        "image/textures/r_cable.png"]
         self.textures = []
         
-#        self.width = 10 #20
-#        self.height = 4 #13
-#        self.depth = 4 #10
-        self.width = 20 #20
+        self.width = 10 #20
         self.height = 4 #13
         self.depth = 4 #10
+        
+        
+        # Default room size
+        w = 10 * constants.blockScale
+        h = 4 * constants.blockScale
+        d = 4 * constants.blockScale
+        self.rooms_values = [
+                (0,0,w,h,d,[6,5,3,2,2],None),
+                (w,0,w,h,d,[1,5,3,5,4],[(w/5,0,w*0.15,h*0.7,d*0.7,7)]),
+                (0,h,w,h,d,[1,5,3,5,3],None),
+                (0,2*h,w,h,d,[1,5,3,5,2],None),
+                ]
+        # The first array are the number of the textures
+        # it's ordered: [bottom floor, right wall, top ceiling, left wall, back wall]
+        # The numbers there are the indexes of the textures of self.images (5 is the door r_side_door.png)
+        
+        self.rooms = []
+        self.maps = []
+        self.current_room = 0
+        
+        self.room_transitions = [
+                [0,[.99,0,.01,.4],1,[.05,0]],
+                [1,[.01,0,.01,.4],0,[.95,0]],
+                [1,[.99,0,.01,.4],2,[.95,0]],
+                [2,[.01,0,.01,.4],3,[.05,0]],
+                [2,[.99,0,.01,.4],1,[.95,0]],
+                [3,[.01,0,.01,.4],2,[.05,0]],
+                [3,[.99,0,.01,.4],"Test Tower Level",None],
+                ]
         
         self.position = (0,0,0.2) #(0,0,0.4)
         #z = max(1,max(self.width,self.height)*0.07)
@@ -49,39 +77,34 @@ class RoomStage(Stage):
             #self.textures.append((index, width, height))
             
         self.unordered_draw = True
-            
-        self.room_vbos = []
-        # 0 = bottom floor
-        # 1 = right wall
-        # 2 = top ceiling
-        # 3 = left wall
-        # 4 = back wall
         
-        self.map = Map.createEmpty(self.width,self.height)
+        #self.map = Map.createEmpty(self.width,self.height)
         self.gen_room_coordinates()
         
-    def gen_room_coordinates(self):
-        #w = self.width * constants.blockScale
-        #h = self.height * constants.blockScale
-        #d = self.depth * constants.blockScale
-        w = 10 * constants.blockScale
-        h = 4 * constants.blockScale
-        d = 4 * constants.blockScale
+    def gen_room_coordinates(self):        
+        self.rooms = []
+        self.maps = []
+        for x,y,w,h,d,wall_textures,images in self.rooms_values:
+            myroom = []
+            coordinates = self.createRoom(w-constants.mue,h-constants.mue,d-constants.mue,wall_textures,dx=x,dy=y)
+            if images is not None:
+                for xi,yi,wi,hi,di,ti in images:
+                    coordinates += self.createImage(xi,yi,wi,hi,di,ti)
+            for c,tx in coordinates:
+                vbo, vbo_count = Global.master.screen.create_vbo_3d(w,h,c)
+                #self.room_vbos.append((w,h,vbo, vbo_count, tx))
+                myroom.append((w, h, vbo, vbo_count, tx))
+            self.rooms.append([x,y,w,h,myroom])
+            self.maps.append(Map.createEmpty(constants.trunc(w/constants.blockScale),constants.trunc(h/constants.blockScale),[constants.trunc(x/constants.blockScale),constants.trunc(y/constants.blockScale)]))
         
-#        coordinates = self.createRoom(w,h,d,[1,2,3,5,4])
-#        dx = -w
-#        dy = 0
-#        dz = 0
-#        coordinates += self.createRoom(w,h,d,[6,5,3,2,2],dx,dy,dz)
-#        coordinates += self.createImage(w/5,0,w*0.15,h*0.7,d*0.7,7,dx,dy,dz)
-        
-        coordinates = self.createRoom(w,h,d,[6,5,3,2,2])
-        coordinates += self.createRoom(w,h,d,[1,2,3,5,4],dx=w+constants.mue)
-        coordinates += self.createImage(w/5,0,w*0.15,h*0.7,d*0.7,7)
-               
-        for c,tx in coordinates:
-            vbo, vbo_count = Global.master.screen.create_vbo_3d(w,h,c)
-            self.room_vbos.append((w,h,vbo, vbo_count, tx))
+        self.map = self.maps[0]
+        #coordinates = self.createRoom(w,h,d,[6,5,3,2,2])
+        #coordinates += self.createRoom(w,h,d,[1,2,3,5,4],dx=w+constants.mue)
+        #coordinates += self.createImage(w/5,0,w*0.15,h*0.7,d*0.7,7)
+        #       
+        #for c,tx in coordinates:
+        #    vbo, vbo_count = Global.master.screen.create_vbo_3d(w,h,c)
+        #    self.room_vbos.append((w,h,vbo, vbo_count, tx))
 
     def createRoom(self,w,h,d,textures,dx=0,dy=0,dz=0):
         # Bottom, right, top, left, back
@@ -121,22 +144,58 @@ class RoomStage(Stage):
     def update(self):
         Stage.update(self)
         
+        if self.player is not None:
+            if self.player.temp_enter and self.player.temp_delay <= 0:
+                for rid,[x,y,w,h],orid,oposition in self.room_transitions:
+                    if rid == self.current_room:
+                        crx,cry,crw,crh,cmyroom = self.rooms[self.current_room]
+                        if physics.collision(self.player.position[0]-self.player.hitbox_size[0]/2,
+                                             self.player.position[1]-self.player.hitbox_size[1]/2,
+                                             self.player.hitbox_size[0],self.player.hitbox_size[1],
+                                             x+crx,y+cry,w,h):
+                            if type(orid) is str: # Level transition
+                                # TODO
+                                Global.master.game.transitionTo(orid)
+                            else: # Room transition
+                                # Move player to orid !
+                                self.current_room = orid
+                                rx,ry,rw,rh,myroom = self.rooms[self.current_room]
+                                self.map = self.maps[self.current_room]
+                                #self.player.vx = 0
+                                if oposition[0] + rx > self.player.position[0] == self.player.velocity[0] < 0: self.player.velocity[0] *= -1 # Turn player if required
+                                self.player.position[0] = oposition[0] + rx
+                                self.player.position[1] = oposition[1] + ry + self.player.hitbox_size[1]/2
+                                self.player.temp_enter = False
+                                break
+        
     def initViewport(self):
         Global.master.game.viewport = [self.default_viewport[0],self.default_viewport[1],self.default_viewport[2]]
         
     def setViewport(self):
-        pass
-        #px,py,pz = Global.master.game.viewport
-        #Global.master.game.viewport = [self.default_viewport[0],self.default_viewport[1],pz]
+        px,py,pz = Global.master.game.viewport
+        crx,cry,crw,crh,cmyroom = self.rooms[self.current_room]
+        shouldx, shouldy, shouldz = crx + crw/2, cry + crh/2, 1.4
+        #px + (shouldx - px) * 2/3 = px*3/3-(px*2/3)+shouldx*2/3 = px/3 + cshouldx*2/3
+        npx = px *2/3 + shouldx /3  
+        npy = py *2/3 + shouldy /3
+        npz = pz *2/3 + shouldz /3
+        Global.master.game.viewport = [npx,npy,npz]
             
     def draw(self, screen):
             
-        for box in self.room_vbos:
-            screen.draw_vbo_pos(self.position,self.textures[box[4]][0],box[2],box[3])
+        ##cur_room = self.rooms_values[self.current_room]
+        ##screen.translate(-cur_room[0],-cur_room[1],0)
+        
+        #for box in self.room_vbos:
+        for x,y,w,h,myroom in self.rooms:
+            for box in myroom:
+                screen.draw_vbo_pos(self.position,self.textures[box[4]][0],box[2],box[3])
         #screen.draw_vbo_pos((0,0,-0.4),self.textures[0][0],self.room_vbos[0][2],self.room_vbos[0][3])
         #screen.draw_vbo_pos((0,0,-0.4),self.textures[0][0],self.textures[0][3],self.textures[0][4]
         #if self.unordered_draw:
         #    screen.disableImageDepth()
+        
+        ##screen.popTranslation()
             
         if self.player is not None:
             self.player.draw(screen)

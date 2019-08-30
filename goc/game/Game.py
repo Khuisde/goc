@@ -79,6 +79,24 @@ class Game:
             self.stage.initPlayer(self.player)
             self.stage.initViewport()
         
+    def transitionTo(self,levelname):
+        if len (self.stages) > 1:
+            index = 0
+            for z, stage in self.stages:
+                if stage.id == levelname:
+                    self.stages[self.player_layer][1].delPlayer()
+                    self.player_layer = index
+                    self.stage = stage
+                    self.stage.addPlayer(self.player)
+                    self.stage.initPlayer(self.player)
+                    self.stage.initViewport()
+                    return True
+                index += 1
+        else:
+            return False
+                    
+        
+        
     def update(self):
         
         if self.background:
@@ -106,9 +124,9 @@ class Game:
             self.background.draw(screen)
         
         for z, stage in self.stages:
-            screen.gotoLayer(0,0,z)
+            screen.translate(0,0,z)
             stage.draw(screen)
-            screen.goLayerBack()
+            screen.popTranslation()
             if stage.player is not None:  # Draw up to the point where the player is
                 break
         

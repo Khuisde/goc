@@ -22,6 +22,9 @@ def orArray(x,y):
         res.append(x[i] or y[i])
     return res
 
+def collision(x,y,w,h,ox,oy,ow,oh):
+    return x+w >= ox and x <= ox+ow and y+h >= oy and y <= oy+oh
+
 # pos, velocity, size will overwrite values
 def apply(pos,velocity,size,physicstate,map):
     if (abs(velocity[0]) > constants.maxVelocity): velocity[0] = math.copysign(constants.maxVelocity,velocity[0])

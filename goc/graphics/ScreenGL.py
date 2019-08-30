@@ -195,11 +195,18 @@ class Screen:
         vbo = glvbo.VBO(textures_arr)
         return vbo, vbo_vec_count
     
-    def gotoLayer(self,x,y,z):
+    #def gotoLayer(self,x,y,z):
+    #    glPushMatrix() # Put a new position + rotation on the stack
+    #    glTranslate(x, y, z)
+    #    
+    #def goLayerBack(self):
+    #    glPopMatrix() # Remove the position + rotation again
+        
+    def translate(self,x,y,z):
         glPushMatrix() # Put a new position + rotation on the stack
         glTranslate(x, y, z)
         
-    def goLayerBack(self):
+    def popTranslation(self):
         glPopMatrix() # Remove the position + rotation again
     
     def init_text(self,filename,w=20,h=34,scale=0.4):
@@ -832,7 +839,8 @@ class Screen:
                     
         self.drawText((0,0),"C,V,N,M - Move Camera")
         self.drawText((0,0.1),"O,P - Change Layer")
-        self.drawText((0.2,0.2),"Arrow Keys, W, Shift - Move")
+        self.drawText((0.1,0.2),"Arrow Keys, W, Shift - Move")
+        self.drawText((0,0.3),"E - enter doors")
         
         #self.drawImage(self.light_image_id,self.lightx, self.lighty, self.lightz-0.01,1,1)
         

@@ -41,3 +41,8 @@ slowVelocity = 0.001
 
 # Enemy values
 enemyWalkVelocity = 0.0008
+
+
+def trunc(value):
+    if value >= 0: return int(value)
+    else: return int(value)-1

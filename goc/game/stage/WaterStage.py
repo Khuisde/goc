@@ -17,6 +17,8 @@ class WaterStage(Stage):
         Stage.__init__(self)
         self.active = True
         
+        self.id = "Test 2d Level"
+        
         self.images = ["image/Wasser_1.png",
                     "image/Wasser_2.png",
                     "image/Wasser_3.png",
