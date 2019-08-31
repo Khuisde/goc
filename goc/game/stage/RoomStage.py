@@ -40,8 +40,8 @@ class RoomStage(Stage):
         self.rooms_values = [
                 (0,0,w,h,d,[6,5,3,2,2],None),
                 (w,0,w,h,d,[1,5,3,5,4],[(w/5,0,w*0.15,h*0.7,d*0.7,7)]),
-                (0,h,w,h,d,[1,5,3,5,3],None),
-                (0,2*h,w,h,d,[1,5,3,5,2],None),
+                (w,h,w,h,d,[1,5,3,5,2],None),
+                (w,2*h,w,h*1.5,d,[1,5,3,5,3],None),
                 ]
         # The first array are the number of the textures
         # it's ordered: [bottom floor, right wall, top ceiling, left wall, back wall]
